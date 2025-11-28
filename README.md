@@ -22,7 +22,7 @@ Frontend do Mini Marketplace, uma plataforma para conectar prestadores de servi√
 
 1. Clone o reposit√≥rio:
 ```bash
-git clone <repository-url>
+git clone https://github.com/marcosmelo0/Mini-Marketplace-Frontend.git
 cd mini-marketplace-frontend
 ```
 
