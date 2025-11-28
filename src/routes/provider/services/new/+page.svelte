@@ -16,8 +16,7 @@
     let name = $state("");
     let description = $state("");
     let category = $state("");
-    let photoFile = $state<File | null>(null);
-    let photoPreview = $state<string | null>(null);
+    let photoUrl = $state("");
 
     onMount(async () => {
         try {
@@ -36,33 +35,14 @@
         }
     });
 
-    function handlePhotoChange(e: Event) {
-        const input = e.target as HTMLInputElement;
-        const file = input.files?.[0];
-
-        if (file) {
-            photoFile = file;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                photoPreview = e.target?.result as string;
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    function removePhoto() {
-        photoFile = null;
-        photoPreview = null;
-    }
-
     async function handleSubmit(e: Event) {
         e.preventDefault();
         submitting = true;
 
         try {
             const photos: string[] = [];
-            if (photoPreview) {
-                photos.push(photoPreview);
+            if (photoUrl) {
+                photos.push(photoUrl);
             }
 
             await createService({
@@ -153,50 +133,28 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">
-                        Foto do Serviço
-                    </label>
+                    <Input
+                        type="url"
+                        label="URL da Foto do Serviço"
+                        bind:value={photoUrl}
+                        placeholder="https://exemplo.com/imagem.jpg"
+                    />
 
-                    {#if photoPreview}
-                        <div class="relative mb-3">
+                    {#if photoUrl}
+                        <div class="mt-3 relative">
                             <img
-                                src={photoPreview}
+                                src={photoUrl}
                                 alt="Preview"
                                 class="w-full h-64 object-cover rounded-xl border border-slate-700"
+                                onerror={(e) => {
+                                    const img =
+                                        e.currentTarget as HTMLImageElement;
+                                    img.src =
+                                        "https://placehold.co/600x400?text=Erro+na+Imagem";
+                                }}
                             />
-                            <button
-                                type="button"
-                                onclick={removePhoto}
-                                class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 transition-colors shadow-lg"
-                            >
-                                🗑️
-                            </button>
                         </div>
                     {/if}
-
-                    <div
-                        class="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center hover:border-purple-500/50 transition-colors bg-slate-800/30"
-                    >
-                        <input
-                            type="file"
-                            id="photo-upload"
-                            accept="image/jpeg,image/jpg,image/png,image/webp"
-                            onchange={handlePhotoChange}
-                            class="hidden"
-                        />
-                        <label
-                            for="photo-upload"
-                            class="cursor-pointer flex flex-col items-center justify-center"
-                        >
-                            <span class="text-4xl mb-2">📷</span>
-                            <span class="text-purple-400 font-medium mb-1"
-                                >Clique para enviar uma foto</span
-                            >
-                            <span class="text-xs text-gray-500"
-                                >JPG, PNG ou WEBP</span
-                            >
-                        </label>
-                    </div>
                 </div>
 
                 <div class="pt-4 flex flex-col sm:flex-row gap-3">

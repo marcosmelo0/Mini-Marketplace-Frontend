@@ -3,6 +3,7 @@
     import { Motion } from "svelte-motion";
     import Loading from "$lib/components/ui/Loading.svelte";
     import Button from "$lib/components/ui/Button.svelte";
+    import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
     import ReviewModal from "$lib/components/ReviewModal.svelte";
     import {
         getMyBookings,
@@ -22,6 +23,8 @@
     let hasCheckedAuth = $state(false);
     let showReviewModal = $state(false);
     let selectedBookingForReview = $state<Booking | null>(null);
+    let showCancelModal = $state(false);
+    let bookingToCancel = $state<string | null>(null);
 
     $effect(() => {
         if ($isInitialized && !hasCheckedAuth) {
@@ -58,18 +61,27 @@
         }
     }
 
-    async function handleCancelBooking(id: string) {
-        if (!confirm("Tem certeza que deseja cancelar este agendamento?")) {
-            return;
-        }
+    function openCancelModal(id: string) {
+        bookingToCancel = id;
+        showCancelModal = true;
+    }
+
+    async function confirmCancelBooking() {
+        if (!bookingToCancel) return;
 
         try {
-            await cancelBooking(id);
+            await cancelBooking(bookingToCancel);
             await loadBookings();
             toastStore.success("Agendamento cancelado com sucesso!");
         } catch (error: any) {
             toastStore.error(error.message || "Erro ao cancelar agendamento");
+        } finally {
+            bookingToCancel = null;
         }
+    }
+
+    function cancelCancelBooking() {
+        bookingToCancel = null;
     }
 
     function openReviewModal(booking: Booking) {
@@ -325,7 +337,7 @@
                                             variant="danger"
                                             size="sm"
                                             onclick={() =>
-                                                handleCancelBooking(booking.id)}
+                                                openCancelModal(booking.id)}
                                             class="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 text-red-300"
                                         >
                                             ❌ Cancelar
@@ -349,6 +361,18 @@
         {/if}
     </div>
 </Motion>
+
+<!-- Cancel Confirmation Modal -->
+<ConfirmModal
+    bind:open={showCancelModal}
+    title="Cancelar Agendamento"
+    message="Tem certeza que deseja cancelar este agendamento? Esta ação não pode ser desfeita."
+    confirmText="Cancelar Agendamento"
+    cancelText="Voltar"
+    variant="danger"
+    onConfirm={confirmCancelBooking}
+    onCancel={cancelCancelBooking}
+/>
 
 <!-- Review Modal -->
 {#if selectedBookingForReview}

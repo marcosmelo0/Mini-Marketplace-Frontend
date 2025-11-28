@@ -1,70 +1,60 @@
-# Mini Marketplace - Frontend
+# 🛍️ Mini Marketplace - Frontend
 
-Frontend do Mini Marketplace, uma plataforma moderna e responsiva para conectar prestadores de serviços com clientes.
+> Aplicação frontend para o Mini Marketplace, uma plataforma de agendamento de serviços que conecta clientes e prestadores de serviços.
 
-## ✨ Destaques
-
-- 🎨 **Design Moderno** - Interface premium com gradientes, glassmorphism e animações suaves
-- 📱 **Totalmente Responsivo** - Experiência otimizada para mobile, tablet e desktop
-- ⚡ **Performance** - Carregamento rápido e navegação fluida
-- 🔍 **Busca Inteligente** - Integração com Elasticsearch para busca rápida e precisa
-- 🔔 **Notificações em Tempo Real** - Sistema de notificações para provedores
-- 🎯 **UX Aprimorada** - Componentes intuitivos e fluxos de usuário otimizados
+---
 
 ## 🚀 Tecnologias
 
-- **SvelteKit 5** - Framework web moderno com roteamento file-based
-- **TypeScript** - Tipagem estática para código mais seguro
-- **Tailwind CSS v4** - Estilização utilitária de última geração
-- **Svelte Motion** - Animações fluidas e performáticas
-- **Zod** - Validação de dados robusta
-- **date-fns** - Manipulação de datas em português brasileiro
+- **Framework**: [SvelteKit](https://kit.svelte.dev/)
+- **Linguagem**: TypeScript
+- **Estilização**: Tailwind CSS
+- **Animações**: Svelte Motion
+- **HTTP Client**: Fetch API
+- **Gerenciamento de Estado**: Svelte Stores
+- **Validação**: Zod (no backend)
+
+---
 
 ## 📋 Pré-requisitos
 
-- Node.js 20+
+- Node.js 18+ 
 - npm ou yarn
-- Backend do Mini Marketplace rodando (porta 3000)
+- Backend rodando em `http://localhost:3000`
+
+---
 
 ## 🔧 Instalação
 
-### Desenvolvimento Local
-
-1. Clone o repositório:
 ```bash
+# Clone o repositório
 git clone <repository-url>
-cd mini-marketplace-frontend
-```
 
-2. Instale as dependências:
-```bash
+# Entre na pasta do projeto
+cd mini-marketplace-frontend
+
+# Instale as dependências
 npm install
 ```
 
-3. Configure as variáveis de ambiente:
-```bash
-cp .env.example .env
-```
+---
 
-Edite o arquivo `.env`:
-```env
-PUBLIC_API_URL=http://localhost:3000
-```
+## 🏃 Executando o Projeto
 
-4. Inicie o servidor de desenvolvimento:
 ```bash
+# Modo de desenvolvimento
 npm run dev
+
+# Build para produção
+npm run build
+
+# Preview da build de produção
+npm run preview
 ```
 
-A aplicação estará disponível em `http://localhost:5173`
+O projeto estará disponível em `http://localhost:5173`
 
-### Com Docker
-
-```bash
-docker-compose up -d
-```
-
-A aplicação estará disponível em `http://localhost:3001`
+---
 
 ## 📁 Estrutura do Projeto
 
@@ -72,204 +62,184 @@ A aplicação estará disponível em `http://localhost:3001`
 src/
 ├── lib/
 │   ├── api/              # Funções de chamada à API
-│   │   ├── auth.ts       # Autenticação e autorização
-│   │   ├── services.ts   # CRUD de serviços
-│   │   ├── bookings.ts   # Gerenciamento de agendamentos
-│   │   ├── reviews.ts    # Sistema de avaliações
-│   │   ├── availabilities.ts  # Disponibilidade de provedores
-│   │   ├── notifications.ts   # Notificações
-│   │   └── search.ts     # Busca com Elasticsearch
-│   ├── stores/           # Svelte stores (estado global)
-│   │   ├── auth.ts       # Estado de autenticação
-│   │   ├── toast.ts      # Notificações toast
-│   │   └── notifications.ts  # Notificações do sistema
+│   │   ├── auth.ts       # Autenticação
+│   │   ├── services.ts   # Serviços
+│   │   ├── bookings.ts   # Agendamentos
+│   │   ├── reviews.ts    # Avaliações
+│   │   └── ...
 │   ├── components/       # Componentes reutilizáveis
-│   │   ├── ui/          # Componentes base (Button, Input, Modal, etc.)
-│   │   ├── Navigation.svelte
-│   │   ├── SearchBar.svelte
-│   │   └── ReviewModal.svelte
+│   │   ├── ui/          # Componentes de UI
+│   │   └── ...
+│   ├── stores/          # Svelte stores
+│   │   ├── auth.ts      # Estado de autenticação
+│   │   └── toast.ts     # Notificações toast
 │   ├── types/           # TypeScript types
-│   │   └── api.ts       # Tipos da API
 │   └── utils/           # Funções auxiliares
-│       ├── http.ts      # Cliente HTTP com interceptors
-│       ├── date.ts      # Formatação de datas
-│       └── debounce.ts  # Debounce para inputs
-├── routes/              # Páginas SvelteKit (file-based routing)
-│   ├── +page.svelte                    # Home
-│   ├── +layout.svelte                  # Layout principal
-│   ├── auth/
-│   │   ├── login/+page.svelte          # Login
-│   │   └── register/+page.svelte       # Cadastro
-│   ├── services/
-│   │   ├── +page.svelte                # Lista de serviços
-│   │   └── [id]/+page.svelte           # Detalhes do serviço
-│   ├── bookings/
-│   │   ├── +page.svelte                # Meus agendamentos
-│   │   └── new/+page.svelte            # Novo agendamento
-│   ├── profile/
-│   │   └── +page.svelte                # Perfil do usuário
-│   └── provider/
-│       ├── dashboard/+page.svelte      # Dashboard do provedor
-│       ├── services/
-│       │   ├── +page.svelte            # Gerenciar serviços
-│       │   ├── new/+page.svelte        # Criar serviço
-│       │   └── [id]/+page.svelte       # Editar serviço
-│       ├── availability/+page.svelte   # Gerenciar disponibilidade
-│       └── notifications/+page.svelte  # Centro de notificações
-└── app.css              # Estilos globais e Tailwind
+├── routes/              # Páginas da aplicação (SvelteKit routing)
+│   ├── auth/           # Páginas de autenticação
+│   ├── services/       # Páginas de serviços
+│   ├── bookings/       # Páginas de agendamentos
+│   ├── provider/       # Páginas do provedor
+│   └── ...
+├── app.css             # Estilos globais
+└── app.html            # Template HTML
 ```
 
-## 🎯 Funcionalidades
+---
 
-### Para Todos os Usuários
-- ✅ **Busca Avançada** - Busca com autocomplete e sugestões inteligentes
-- ✅ **Filtros** - Filtro por categoria com UI responsiva
-- ✅ **Detalhes do Serviço** - Visualização completa com galeria de fotos
-- ✅ **Sistema de Avaliações** - Visualizar avaliações e ratings
-- ✅ **Autenticação** - Login e registro com validação
+## 🎨 Funcionalidades Implementadas
 
-### Para Clientes
-- ✅ **Criar Agendamentos** - Seleção de data, horário e variação
-- ✅ **Meus Agendamentos** - Visualizar histórico completo
-- ✅ **Cancelar Agendamentos** - Cancelamento com confirmação
-- ✅ **Avaliar Serviços** - Sistema de rating com comentários
-- ✅ **Buscas Recentes** - Histórico de buscas personalizadas
+### 👤 Para Todos os Usuários
+- ✅ Página inicial com busca de serviços
+- ✅ Busca com Elasticsearch
+- ✅ Filtro por categoria
+- ✅ Visualização de detalhes do serviço
+- ✅ Sistema de autenticação (Login/Registro)
+- ✅ Perfil do usuário
 
-### Para Provedores
-- ✅ **Dashboard Completo** - Estatísticas e atalhos rápidos
-- ✅ **CRUD de Serviços** - Criar, editar e excluir serviços
-- ✅ **Upload de Fotos** - Galeria de imagens para serviços
-- ✅ **Gerenciar Disponibilidade** - Configurar horários por dia da semana
-- ✅ **Agendamentos Recebidos** - Visualizar e gerenciar bookings
-- ✅ **Centro de Notificações** - Notificações em tempo real
-- ✅ **Notificações Push** - Alertas de novos agendamentos
+### 🛒 Para Clientes
+- ✅ Busca e navegação de serviços
+- ✅ Visualização de detalhes e avaliações
+- ✅ Seleção de variação e agendamento
+- ✅ Verificação de disponibilidade em tempo real
+- ✅ Lista de agendamentos
+- ✅ Cancelamento de agendamentos
+- ✅ Sistema de avaliações
 
-## 🎨 Design System
+### 💼 Para Provedores
+- ✅ Dashboard com resumo
+- ✅ CRUD completo de serviços
+- ✅ Gerenciamento de variações de serviço
+- ✅ Gerenciamento de disponibilidade
+- ✅ Lista de agendamentos recebidos
+- ✅ Centro de notificações
+- ✅ Marcar notificações como lidas
 
-### Cores
-- **Primary**: Gradiente roxo-rosa (`from-purple-600 to-pink-600`)
-- **Background**: Slate escuro (`slate-900`)
-- **Cards**: Glass effect com backdrop blur
-- **Text**: Branco e tons de cinza
-
-### Componentes UI
-- **Button** - Variantes: primary, outline, ghost, danger
-- **Input** - Com labels e validação visual
-- **Modal** - Responsivo com animações
-- **Toast** - Notificações temporárias
-- **Loading** - Spinner animado
-- **Card** - Container com glass effect
-
-### Responsividade
-Breakpoints Tailwind:
-- `sm`: 640px (mobile landscape)
-- `md`: 768px (tablet)
-- `lg`: 1024px (desktop)
-- `xl`: 1280px (large desktop)
-
-Todas as páginas são otimizadas para:
-- 📱 Mobile (320px+)
-- 📱 Tablet (768px+)
-- 💻 Desktop (1024px+)
+---
 
 ## 🔐 Autenticação
 
-### JWT (JSON Web Tokens)
-- Tokens armazenados em `localStorage`
-- Renovação automática de tokens
-- Interceptors HTTP para incluir tokens automaticamente
-- Proteção de rotas com `RouteGuard`
+O sistema utiliza JWT (JSON Web Tokens) para autenticação:
 
-### Fluxo de Autenticação
-1. Login/Registro → Recebe access token e refresh token
-2. Access token incluído em todas as requisições
-3. Ao expirar, tenta renovar automaticamente
-4. Se falhar, redireciona para login
+1. **Login**: Retorna `token` e `refreshToken`
+2. **Token**: Armazenado no localStorage e incluído em requisições autenticadas
+3. **Refresh**: Renovação automática do token quando expira
+4. **Roles**: `CLIENT` (cliente) ou `PROVIDER` (prestador)
 
-## 🌐 Variáveis de Ambiente
+---
 
-| Variável | Descrição | Padrão |
-|----------|-----------|--------|
-| `PUBLIC_API_URL` | URL do backend | `http://localhost:3000` |
+## 📡 Integração com Backend
 
-## 📜 Scripts Disponíveis
+A aplicação consome a API REST do backend em `http://localhost:3000`.
+
+### Principais Endpoints Utilizados
+
+- **Auth**: `/auth/login`, `/auth/register`, `/auth/refresh`
+- **Serviços**: `/services`, `/services/:id`, `/services/types`
+- **Agendamentos**: `/bookings`, `/bookings/client/my-bookings`
+- **Avaliações**: `/reviews`, `/reviews/services/:serviceId`
+- **Disponibilidade**: `/availabilities/provider/:providerId/slots`
+- **Notificações**: `/notifications/my-notifications`
+
+Para documentação completa da API, consulte o arquivo `BACKEND_SPEC.md`.
+
+---
+
+## 🎨 Design System
+
+### Cores Principais
+- **Primary**: Purple/Pink gradient
+- **Background**: Dark slate (slate-900)
+- **Cards**: Glass morphism effect
+- **Text**: White/Gray scale
+
+### Componentes UI
+- `Button`: Botões com variantes (primary, outline, ghost)
+- `Input`: Campos de entrada estilizados
+- `Loading`: Indicador de carregamento
+- `Toast`: Notificações temporárias
+- `Modal`: Diálogos modais
+
+---
+
+## 📝 Notas Importantes
+
+### Fotos de Serviços
+- As fotos são armazenadas como **URLs de texto** no frontend
+- O backend armazena as imagens como dados binários (BYTEA)
+- URLs de fotos seguem o padrão: `/services/{id}/photos/{index}`
+
+### Categorias de Serviços
+- As categorias são obtidas dinamicamente via `/services/types`
+- Utilizadas em selects nas páginas de criação e edição de serviços
+
+### Disponibilidade
+- Sistema de slots de horários baseado na duração do serviço
+- Verificação em tempo real de conflitos de agendamento
+- Suporte a descontos por dia da semana
+
+---
+
+## 🐛 Debugging
 
 ```bash
-# Desenvolvimento
-npm run dev
-
-# Build de produção
-npm run build
-
-# Preview do build
-npm run preview
-
-# Type checking
-npm run check
-
-# Type checking em watch mode
-npm run check:watch
-
-# Lint
+# Verificar erros de lint
 npm run lint
+
+# Verificar tipos TypeScript
+npm run check
 ```
 
-## 🔄 Integração com Backend
+---
 
-O frontend se comunica com o backend através de uma API REST documentada em `BACKEND_SPEC.md`.
+## 📦 Build e Deploy
 
-### Principais Endpoints
-- `POST /auth/login` - Autenticação
-- `POST /auth/register` - Cadastro
-- `GET /services` - Listar serviços
-- `POST /services` - Criar serviço (provider)
-- `GET /services/:id` - Detalhes do serviço
-- `POST /bookings` - Criar agendamento
-- `GET /bookings` - Listar agendamentos
-- `GET /search` - Busca com Elasticsearch
-- `GET /notifications` - Notificações (provider)
-
-## 🐛 Troubleshooting
-
-### Erro de conexão com o backend
-1. Verifique se o backend está rodando na porta 3000
-2. Confirme a variável `PUBLIC_API_URL` no `.env`
-3. Verifique se não há bloqueio de CORS
-
-### Problemas com autenticação
-1. Limpe o localStorage:
-```javascript
-localStorage.clear()
-```
-2. Faça login novamente
-
-### Erros de build
-1. Limpe o cache:
 ```bash
-rm -rf .svelte-kit node_modules
-npm install
-```
-
-### Problemas com Tailwind CSS v4
-- Certifique-se de ter a configuração correta no `app.css`
-- Verifique se o VS Code está configurado para ignorar warnings de `@custom-variant`
-
-## 🚀 Deploy
-
-### Build de Produção
-```bash
+# Criar build de produção
 npm run build
+
+# A build estará em ./build
+# Configure seu servidor para servir os arquivos estáticos
 ```
 
-Os arquivos otimizados estarão em `/build`
+---
 
-### Variáveis de Ambiente em Produção
-Certifique-se de configurar `PUBLIC_API_URL` para a URL do backend em produção.
+## 🔄 Atualizações Recentes
+
+### 28/11/2025
+- ✅ Atualizado input de foto para URL de texto (criação de serviço)
+- ✅ Atualizado campo de categoria para select dropdown (edição de serviço)
+- ✅ Melhorias de responsividade em toda a aplicação
+- ✅ Sistema de avaliações implementado
+
+### 27/11/2025
+- ✅ Implementado sistema de upload de imagens
+- ✅ Seed data atualizado com múltiplos nichos
+- ✅ Correções de responsividade
+
+---
 
 ## 📄 Licença
 
-Este projeto foi desenvolvido como parte de um desafio técnico.
+Este projeto é parte de um sistema de marketplace de serviços.
 
-## 👥 Autor
+---
 
-Desenvolvido com ❤️ por Marcos, usando SvelteKit 5 e Tailwind CSS v4.
+## 👥 Contribuindo
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+---
+
+## 📞 Suporte
+
+Para questões e suporte, consulte a documentação do backend em `BACKEND_SPEC.md`.
+
+---
+
+**Última atualização**: 28/11/2025  
+**Versão**: 1.0.0

@@ -4,6 +4,7 @@
     import { Motion } from "svelte-motion";
     import Loading from "$lib/components/ui/Loading.svelte";
     import Button from "$lib/components/ui/Button.svelte";
+    import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
     import { getMyServices, deleteService } from "$lib/api/services";
     import { authStore, isInitialized } from "$lib/stores/auth";
     import { toastStore } from "$lib/stores/toast";
@@ -12,6 +13,8 @@
     let services = $state<Service[]>([]);
     let loading = $state(true);
     let hasCheckedAuth = $state(false);
+    let showDeleteModal = $state(false);
+    let serviceToDelete = $state<string | null>(null);
 
     $effect(() => {
         if ($isInitialized && !hasCheckedAuth) {
@@ -36,18 +39,27 @@
         }
     }
 
-    async function handleDelete(id: string) {
-        if (!confirm("Tem certeza que deseja excluir este serviço?")) {
-            return;
-        }
+    function openDeleteModal(id: string) {
+        serviceToDelete = id;
+        showDeleteModal = true;
+    }
+
+    async function confirmDelete() {
+        if (!serviceToDelete) return;
 
         try {
-            await deleteService(id);
+            await deleteService(serviceToDelete);
             await loadServices();
             toastStore.success("Serviço excluído com sucesso!");
         } catch (error: any) {
             toastStore.error(error.message || "Erro ao excluir serviço");
+        } finally {
+            serviceToDelete = null;
         }
+    }
+
+    function cancelDelete() {
+        serviceToDelete = null;
     }
 </script>
 
@@ -162,7 +174,8 @@
                                     <Button
                                         variant="danger"
                                         size="sm"
-                                        onclick={() => handleDelete(service.id)}
+                                        onclick={() =>
+                                            openDeleteModal(service.id)}
                                         class="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 text-red-300"
                                     >
                                         🗑️
@@ -176,3 +189,15 @@
         {/if}
     </div>
 </Motion>
+
+<!-- Delete Confirmation Modal -->
+<ConfirmModal
+    bind:open={showDeleteModal}
+    title="Excluir Serviço"
+    message="Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita."
+    confirmText="Excluir"
+    cancelText="Cancelar"
+    variant="danger"
+    onConfirm={confirmDelete}
+    onCancel={cancelDelete}
+/>

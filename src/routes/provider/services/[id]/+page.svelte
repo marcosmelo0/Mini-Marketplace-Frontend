@@ -5,7 +5,11 @@
     import Button from "$lib/components/ui/Button.svelte";
     import Input from "$lib/components/ui/Input.svelte";
     import Loading from "$lib/components/ui/Loading.svelte";
-    import { getServiceById, updateService } from "$lib/api/services";
+    import {
+        getServiceById,
+        updateService,
+        getServiceTypes,
+    } from "$lib/api/services";
     import { authStore, isInitialized } from "$lib/stores/auth";
     import type { Service } from "$lib/types/api";
 
@@ -15,6 +19,7 @@
     let loading = $state(true);
     let submitting = $state(false);
     let hasCheckedAuth = $state(false);
+    let categories = $state<string[]>([]);
 
     // Form fields
     let name = $state("");
@@ -37,7 +42,14 @@
     async function loadService() {
         loading = true;
         try {
-            service = await getServiceById(serviceId);
+            const [serviceData, categoriesData] = await Promise.all([
+                getServiceById(serviceId),
+                getServiceTypes(),
+            ]);
+
+            service = serviceData;
+            categories = categoriesData;
+
             name = service.name;
             description = service.description;
             category = service.category;
@@ -137,13 +149,25 @@
                         ></textarea>
                     </div>
 
-                    <Input
-                        type="text"
-                        label="Categoria"
-                        bind:value={category}
-                        required
-                        placeholder="Ex: Beleza, Reparos, Limpeza..."
-                    />
+                    <div>
+                        <label
+                            class="block text-sm font-medium text-gray-300 mb-2"
+                        >
+                            Categoria *
+                        </label>
+                        <select
+                            bind:value={category}
+                            required
+                            class="w-full px-4 py-3 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-slate-800/50 text-white"
+                        >
+                            <option value="" disabled
+                                >Selecione uma categoria</option
+                            >
+                            {#each categories as cat}
+                                <option value={cat}>{cat}</option>
+                            {/each}
+                        </select>
+                    </div>
 
                     <div class="flex flex-col sm:flex-row gap-3 pt-4">
                         <Button
