@@ -10,11 +10,15 @@ export async function getServices(params?: {
     page?: number;
     limit?: number;
     category?: string;
+    sort?: string;
+    order?: 'asc' | 'desc';
 }): Promise<PaginatedResponse<Service>> {
     const queryParams = new URLSearchParams();
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.category) queryParams.append('category', params.category);
+    if (params?.sort) queryParams.append('sort', params.sort);
+    if (params?.order) queryParams.append('order', params.order);
 
     const query = queryParams.toString();
     return httpGet<PaginatedResponse<Service>>(`/services${query ? `?${query}` : ''}`);
@@ -24,8 +28,8 @@ export async function getServiceById(id: string): Promise<Service> {
     return httpGet<Service>(`/services/${id}`);
 }
 
-export async function getServiceTypes(): Promise<{ types: string[] }> {
-    return httpGet<{ types: string[] }>('/services/types');
+export async function getServiceTypes(): Promise<string[]> {
+    return httpGet<string[]>('/services/types');
 }
 
 export async function getPopularServices(page = 1, limit = 10): Promise<PaginatedResponse<Service>> {

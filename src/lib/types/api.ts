@@ -84,6 +84,16 @@ export interface Availability {
     updated_at: string;
 }
 
+export interface AvailabilitySlot {
+    start_time: string;
+    end_time: string;
+    available: boolean;
+}
+
+export interface AvailabilitySlotsResponse {
+    slots: AvailabilitySlot[];
+}
+
 export interface Notification {
     id: string;
     providerId: string;

@@ -1,7 +1,8 @@
 import type {
     Availability,
     CreateAvailabilityRequest,
-    UpdateAvailabilityRequest
+    UpdateAvailabilityRequest,
+    AvailabilitySlotsResponse
 } from '$lib/types/api';
 import { httpPost, httpGet, httpPut, httpDelete } from '$lib/utils/http';
 
@@ -22,4 +23,19 @@ export async function updateAvailability(
 
 export async function deleteAvailability(id: string): Promise<void> {
     return httpDelete<void>(`/availabilities/${id}`, true);
+}
+
+export async function getProviderAvailableSlots(
+    providerId: string,
+    date: string,
+    serviceVariationId: string
+): Promise<AvailabilitySlotsResponse> {
+    return httpGet<AvailabilitySlotsResponse>(
+        `/availabilities/provider/${providerId}/slots?date=${date}&serviceVariationId=${serviceVariationId}`,
+        false
+    );
+}
+
+export async function getProviderAvailabilities(providerId: string): Promise<Availability[]> {
+    return httpGet<Availability[]>(`/availabilities/provider/${providerId}`, false);
 }

@@ -2,11 +2,15 @@
   let {
     open = $bindable(false),
     title = "",
+    maxWidth = "max-w-md",
+    maxHeight = "max-h-[90vh]",
     onClose,
     children,
   }: {
     open?: boolean;
     title?: string;
+    maxWidth?: string;
+    maxHeight?: string;
     onClose?: () => void;
     children: any;
   } = $props();
@@ -39,13 +43,13 @@
     tabindex="-1"
   >
     <div
-      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-slide-up"
+      class="bg-gray-800 dark:bg-gray-800 rounded-lg shadow-xl w-full {maxWidth} {maxHeight} mx-4 md:mx-0 overflow-y-auto animate-slide-up custom-scrollbar"
     >
       {#if title}
         <div
           class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700"
         >
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          <h2 class="text-xl font-semibold text-gray-100 dark:text-gray-100">
             {title}
           </h2>
           <button

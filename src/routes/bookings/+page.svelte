@@ -3,22 +3,30 @@
     import { Motion } from "svelte-motion";
     import Loading from "$lib/components/ui/Loading.svelte";
     import Button from "$lib/components/ui/Button.svelte";
-    import { getMyBookings, cancelBooking } from "$lib/api/bookings";
+    import ReviewModal from "$lib/components/ReviewModal.svelte";
+    import {
+        getMyBookings,
+        getProviderBookings,
+        cancelBooking,
+    } from "$lib/api/bookings";
     import { authStore, isInitialized } from "$lib/stores/auth";
     import { toastStore } from "$lib/stores/toast";
     import type { Booking } from "$lib/types/api";
-    import { format } from "date-fns";
-    import { ptBR } from "date-fns/locale";
+    import { formatBrazilDate, formatBrazilTime } from "$lib/utils/date";
 
-    let bookings = $state<Booking[]>([]);
+    let clientBookings = $state<Booking[]>([]);
+    let providerBookings = $state<Booking[]>([]);
     let loading = $state(true);
     let filter = $state<"all" | "CONFIRMED" | "CANCELLED" | "COMPLETED">("all");
+    let activeTab = $state<"client" | "provider">("client");
     let hasCheckedAuth = $state(false);
+    let showReviewModal = $state(false);
+    let selectedBookingForReview = $state<Booking | null>(null);
 
     $effect(() => {
         if ($isInitialized && !hasCheckedAuth) {
             hasCheckedAuth = true;
-            if (!$authStore.user || $authStore.user.role !== "CLIENT") {
+            if (!$authStore.user) {
                 goto("/auth/login");
             } else {
                 loadBookings();
@@ -29,8 +37,20 @@
     async function loadBookings() {
         loading = true;
         try {
-            const response = await getMyBookings();
-            bookings = response.data;
+            if ($authStore.user?.role === "PROVIDER") {
+                // Providers can see both their client bookings and provider bookings
+                const [clientRes, providerRes] = await Promise.all([
+                    getMyBookings(),
+                    getProviderBookings(),
+                ]);
+                clientBookings = clientRes.data;
+                providerBookings = providerRes.data;
+            } else {
+                // Clients only see their bookings
+                const response = await getMyBookings();
+                clientBookings = response.data;
+                providerBookings = [];
+            }
         } catch (error) {
             console.error("Erro ao carregar agendamentos:", error);
         } finally {
@@ -50,6 +70,20 @@
         } catch (error: any) {
             toastStore.error(error.message || "Erro ao cancelar agendamento");
         }
+    }
+
+    function openReviewModal(booking: Booking) {
+        selectedBookingForReview = booking;
+        showReviewModal = true;
+    }
+
+    function closeReviewModal() {
+        showReviewModal = false;
+        selectedBookingForReview = null;
+    }
+
+    async function handleReviewSuccess() {
+        await loadBookings();
     }
 
     function getStatusColor(status: string): string {
@@ -78,11 +112,17 @@
         }
     }
 
+    let bookings = $derived(
+        activeTab === "client" ? clientBookings : providerBookings,
+    );
+
     let filteredBookings = $derived(
         filter === "all"
             ? bookings
             : bookings.filter((b) => b.status === filter),
     );
+
+    let isProvider = $derived($authStore.user?.role === "PROVIDER");
 </script>
 
 <svelte:head>
@@ -98,10 +138,48 @@
     <div use:motion class="max-w-5xl mx-auto">
         <div class="mb-8">
             <h1 class="text-4xl font-bold text-white mb-2">
-                Meus <span class="gradient-primary">Agendamentos</span>
+                {#if isProvider && activeTab === "provider"}
+                    Minha <span class="gradient-primary"
+                        >Agenda de Trabalho</span
+                    >
+                {:else}
+                    Meus <span class="gradient-primary">Agendamentos</span>
+                {/if}
             </h1>
-            <p class="text-gray-400">Gerencie seus agendamentos de serviços</p>
+            <p class="text-gray-400">
+                {#if isProvider && activeTab === "provider"}
+                    Gerencie os agendamentos recebidos dos seus clientes
+                {:else}
+                    Gerencie seus agendamentos de serviços
+                {/if}
+            </p>
         </div>
+
+        <!-- Tabs (only for providers) -->
+        {#if isProvider}
+            <div
+                class="flex space-x-3 mb-6 p-1 bg-slate-800/50 rounded-xl border border-slate-700/50 w-fit"
+            >
+                <button
+                    onclick={() => (activeTab = "client")}
+                    class="px-6 py-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap {activeTab ===
+                    'client'
+                        ? 'bg-linear-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                        : 'text-gray-300 hover:text-white'}"
+                >
+                    📅 Meus Agendamentos
+                </button>
+                <button
+                    onclick={() => (activeTab = "provider")}
+                    class="px-6 py-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap {activeTab ===
+                    'provider'
+                        ? 'bg-linear-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                        : 'text-gray-300 hover:text-white'}"
+                >
+                    💼 Minha Agenda de Trabalho
+                </button>
+            </div>
+        {/if}
 
         <!-- Filtros -->
         <div class="flex space-x-3 mb-8 overflow-x-auto pb-2">
@@ -212,12 +290,8 @@
                                         >
                                             <span>📅</span>
                                             <span>
-                                                {format(
-                                                    new Date(
-                                                        booking.start_time,
-                                                    ),
-                                                    "dd 'de' MMMM 'de' yyyy",
-                                                    { locale: ptBR },
+                                                {formatBrazilDate(
+                                                    booking.start_time,
                                                 )}
                                             </span>
                                         </div>
@@ -227,14 +301,10 @@
                                         >
                                             <span>⏰</span>
                                             <span>
-                                                {format(
-                                                    new Date(
-                                                        booking.start_time,
-                                                    ),
-                                                    "HH:mm",
-                                                )} - {format(
-                                                    new Date(booking.end_time),
-                                                    "HH:mm",
+                                                {formatBrazilTime(
+                                                    booking.start_time,
+                                                )} - {formatBrazilTime(
+                                                    booking.end_time,
                                                 )}
                                             </span>
                                         </div>
@@ -260,6 +330,15 @@
                                         >
                                             ❌ Cancelar
                                         </Button>
+                                    {:else if booking.status === "COMPLETED" && activeTab === "client"}
+                                        <Button
+                                            size="sm"
+                                            onclick={() =>
+                                                openReviewModal(booking)}
+                                            class="bg-linear-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/30 hover:from-yellow-500/20 hover:to-orange-500/20 text-yellow-300"
+                                        >
+                                            ⭐ Avaliar
+                                        </Button>
                                     {/if}
                                 </div>
                             </div>
@@ -270,3 +349,13 @@
         {/if}
     </div>
 </Motion>
+
+<!-- Review Modal -->
+{#if selectedBookingForReview}
+    <ReviewModal
+        booking={selectedBookingForReview}
+        isOpen={showReviewModal}
+        onClose={closeReviewModal}
+        onSuccess={handleReviewSuccess}
+    />
+{/if}

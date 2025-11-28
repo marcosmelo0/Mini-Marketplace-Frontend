@@ -1,29 +1,17 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import { goto } from "$app/navigation";
     import { Motion } from "svelte-motion";
     import Loading from "$lib/components/ui/Loading.svelte";
     import Button from "$lib/components/ui/Button.svelte";
-    import Modal from "$lib/components/ui/Modal.svelte";
-    import Input from "$lib/components/ui/Input.svelte";
-    import {
-        getMyServices,
-        createService,
-        deleteService,
-    } from "$lib/api/services";
+    import { getMyServices, deleteService } from "$lib/api/services";
     import { authStore, isInitialized } from "$lib/stores/auth";
     import { toastStore } from "$lib/stores/toast";
     import type { Service } from "$lib/types/api";
 
     let services = $state<Service[]>([]);
     let loading = $state(true);
-    let modalOpen = $state(false);
-    let submitting = $state(false);
     let hasCheckedAuth = $state(false);
-
-    // Form fields
-    let name = $state("");
-    let description = $state("");
-    let category = $state("");
 
     $effect(() => {
         if ($isInitialized && !hasCheckedAuth) {
@@ -45,32 +33,6 @@
             console.error("Erro ao carregar serviços:", error);
         } finally {
             loading = false;
-        }
-    }
-
-    async function handleSubmit(e: Event) {
-        e.preventDefault();
-        submitting = true;
-
-        try {
-            await createService({
-                name,
-                description,
-                category,
-                photos: [],
-                variations: [],
-            });
-
-            await loadServices();
-            modalOpen = false;
-            name = "";
-            description = "";
-            category = "";
-            toastStore.success("Serviço criado com sucesso!");
-        } catch (error: any) {
-            toastStore.error(error.message || "Erro ao criar serviço");
-        } finally {
-            submitting = false;
         }
     }
 
@@ -110,7 +72,7 @@
                 </p>
             </div>
             <Button
-                onclick={() => (modalOpen = true)}
+                onclick={() => goto("/provider/services/new")}
                 class="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
             >
                 ➕ Novo Serviço
@@ -131,7 +93,7 @@
                     Comece criando seu primeiro serviço
                 </p>
                 <Button
-                    onclick={() => (modalOpen = true)}
+                    onclick={() => goto("/provider/services/new")}
                     class="bg-linear-to-r from-purple-600 to-pink-600"
                 >
                     ➕ Criar Primeiro Serviço
@@ -214,50 +176,3 @@
         {/if}
     </div>
 </Motion>
-
-<!-- Modal de Criar Serviço -->
-<Modal bind:open={modalOpen} title="Novo Serviço">
-    <form onsubmit={handleSubmit} class="space-y-5">
-        <Input type="text" label="Nome do Serviço" bind:value={name} required />
-
-        <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
-                Descrição
-            </label>
-            <textarea
-                bind:value={description}
-                rows="4"
-                required
-                class="w-full px-4 py-3 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-slate-800/50 text-white placeholder-gray-400"
-                placeholder="Descreva seu serviço..."
-            ></textarea>
-        </div>
-
-        <Input
-            type="text"
-            label="Categoria"
-            bind:value={category}
-            required
-            placeholder="Ex: Beleza, Reparos, Limpeza..."
-        />
-
-        <div class="flex space-x-3">
-            <Button
-                type="button"
-                variant="outline"
-                class="flex-1 bg-slate-800/50 border-slate-700 text-white"
-                onclick={() => (modalOpen = false)}
-            >
-                Cancelar
-            </Button>
-            <Button
-                type="submit"
-                variant="primary"
-                class="flex-1 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                loading={submitting}
-            >
-                Criar Serviço
-            </Button>
-        </div>
-    </form>
-</Modal>

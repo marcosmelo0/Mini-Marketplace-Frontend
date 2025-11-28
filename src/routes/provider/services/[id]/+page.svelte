@@ -101,17 +101,19 @@
         transition={{ duration: 0.5 }}
         let:motion
     >
-        <div use:motion class="max-w-3xl mx-auto">
+        <div use:motion class="max-w-3xl mx-auto px-4">
             <div class="mb-8">
-                <h1 class="text-4xl font-bold text-white mb-2">
+                <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2">
                     Editar <span class="gradient-primary">Serviço</span>
                 </h1>
-                <p class="text-gray-400">
+                <p class="text-gray-400 text-sm sm:text-base">
                     Atualize as informações do seu serviço
                 </p>
             </div>
 
-            <div class="glass-dark rounded-3xl p-8 border border-purple-500/20">
+            <div
+                class="glass-dark rounded-3xl p-4 sm:p-6 md:p-8 border border-purple-500/20"
+            >
                 <form onsubmit={handleSubmit} class="space-y-5">
                     <Input
                         type="text"
@@ -143,19 +145,19 @@
                         placeholder="Ex: Beleza, Reparos, Limpeza..."
                     />
 
-                    <div class="flex space-x-3 pt-4">
+                    <div class="flex flex-col sm:flex-row gap-3 pt-4">
                         <Button
                             type="button"
                             variant="outline"
                             onclick={() => goto("/provider/services")}
-                            class="flex-1 bg-slate-800/50 border-slate-700 text-white"
+                            class="w-full sm:flex-1 bg-slate-800/50 border-slate-700 text-white order-2 sm:order-1"
                         >
                             Cancelar
                         </Button>
                         <Button
                             type="submit"
                             variant="primary"
-                            class="flex-1 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                            class="w-full sm:flex-1 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 order-1 sm:order-2"
                             loading={submitting}
                             disabled={submitting}
                         >

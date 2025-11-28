@@ -8,8 +8,7 @@
     import { authStore, isInitialized } from "$lib/stores/auth";
     import { notificationsStore } from "$lib/stores/notifications";
     import type { Booking, Service } from "$lib/types/api";
-    import { format } from "date-fns";
-    import { ptBR } from "date-fns/locale";
+    import { formatBrazilDate, formatBrazilTime } from "$lib/utils/date";
 
     let bookings = $state<Booking[]>([]);
     let services = $state<Service[]>([]);
@@ -64,12 +63,12 @@
         transition={{ duration: 0.5 }}
         let:motion
     >
-        <div use:motion>
+        <div use:motion class="max-w-7xl mx-auto px-4">
             <div class="mb-8">
-                <h1 class="text-4xl font-bold text-white mb-2">
+                <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2">
                     Dashboard do <span class="gradient-primary">Provedor</span>
                 </h1>
-                <p class="text-gray-400">
+                <p class="text-gray-400 text-sm sm:text-base">
                     Gerencie seus serviços e agendamentos
                 </p>
             </div>
@@ -166,15 +165,17 @@
                 <div
                     class="glass-dark rounded-3xl p-8 border border-purple-500/20"
                 >
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-2xl font-bold text-white">
+                    <div
+                        class="flex items-center justify-between mb-6 flex-wrap gap-2"
+                    >
+                        <h2 class="text-xl sm:text-2xl font-bold text-white">
                             📅 Próximos Agendamentos
                         </h2>
                         <Button
                             variant="ghost"
                             size="sm"
-                            onclick={() => goto("/provider/bookings")}
-                            class="text-purple-400 hover:text-purple-300"
+                            onclick={() => goto("/bookings")}
+                            class="text-purple-400 hover:text-purple-300 text-sm"
                         >
                             Ver todos →
                         </Button>
@@ -210,16 +211,13 @@
                                         class="flex items-center space-x-4 text-xs text-gray-500"
                                     >
                                         <span
-                                            >📅 {format(
-                                                new Date(booking.start_time),
-                                                "dd/MM/yyyy",
-                                                { locale: ptBR },
+                                            >📅 {formatBrazilDate(
+                                                booking.start_time,
                                             )}</span
                                         >
                                         <span
-                                            >⏰ {format(
-                                                new Date(booking.start_time),
-                                                "HH:mm",
+                                            >⏰ {formatBrazilTime(
+                                                booking.start_time,
                                             )}</span
                                         >
                                     </div>
@@ -231,20 +229,22 @@
 
                 <!-- Atalhos Rápidos -->
                 <div
-                    class="glass-dark rounded-3xl p-8 border border-purple-500/20"
+                    class="glass-dark rounded-3xl p-6 sm:p-8 border border-purple-500/20"
                 >
-                    <h2 class="text-2xl font-bold text-white mb-6">
+                    <h2 class="text-xl sm:text-2xl font-bold text-white mb-6">
                         ⚡ Atalhos Rápidos
                     </h2>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-3 sm:gap-4">
                         <button
                             onclick={() => goto("/provider/services")}
-                            class="p-6 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 hover:border-purple-500/30 border border-transparent transition-all group"
+                            class="p-4 sm:p-6 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 hover:border-purple-500/30 border border-transparent transition-all group"
                         >
-                            <div class="text-4xl mb-3">🔧</div>
+                            <div class="text-3xl sm:text-4xl mb-2 sm:mb-3">
+                                🔧
+                            </div>
                             <div
-                                class="text-sm font-medium text-white group-hover:text-purple-300 transition-colors"
+                                class="text-xs sm:text-sm font-medium text-white group-hover:text-purple-300 transition-colors"
                             >
                                 Meus Serviços
                             </div>
@@ -252,23 +252,27 @@
 
                         <button
                             onclick={() => goto("/provider/availability")}
-                            class="p-6 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 hover:border-purple-500/30 border border-transparent transition-all group"
+                            class="p-4 sm:p-6 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 hover:border-purple-500/30 border border-transparent transition-all group"
                         >
-                            <div class="text-4xl mb-3">📆</div>
+                            <div class="text-3xl sm:text-4xl mb-2 sm:mb-3">
+                                📆
+                            </div>
                             <div
-                                class="text-sm font-medium text-white group-hover:text-purple-300 transition-colors"
+                                class="text-xs sm:text-sm font-medium text-white group-hover:text-purple-300 transition-colors"
                             >
                                 Disponibilidade
                             </div>
                         </button>
 
                         <button
-                            onclick={() => goto("/provider/bookings")}
-                            class="p-6 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 hover:border-purple-500/30 border border-transparent transition-all group"
+                            onclick={() => goto("/bookings")}
+                            class="p-4 sm:p-6 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 hover:border-purple-500/30 border border-transparent transition-all group"
                         >
-                            <div class="text-4xl mb-3">📋</div>
+                            <div class="text-3xl sm:text-4xl mb-2 sm:mb-3">
+                                📋
+                            </div>
                             <div
-                                class="text-sm font-medium text-white group-hover:text-purple-300 transition-colors"
+                                class="text-xs sm:text-sm font-medium text-white group-hover:text-purple-300 transition-colors"
                             >
                                 Agendamentos
                             </div>
@@ -276,11 +280,13 @@
 
                         <button
                             onclick={() => goto("/provider/notifications")}
-                            class="p-6 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 hover:border-purple-500/30 border border-transparent transition-all group"
+                            class="p-4 sm:p-6 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 hover:border-purple-500/30 border border-transparent transition-all group"
                         >
-                            <div class="text-4xl mb-3">🔔</div>
+                            <div class="text-3xl sm:text-4xl mb-2 sm:mb-3">
+                                🔔
+                            </div>
                             <div
-                                class="text-sm font-medium text-white group-hover:text-purple-300 transition-colors"
+                                class="text-xs sm:text-sm font-medium text-white group-hover:text-purple-300 transition-colors"
                             >
                                 Notificações
                             </div>

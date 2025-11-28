@@ -5,10 +5,10 @@
   import Button from "$lib/components/ui/Button.svelte";
   import Card from "$lib/components/ui/Card.svelte";
   import Loading from "$lib/components/ui/Loading.svelte";
+  import SearchBar from "$lib/components/SearchBar.svelte";
   import { getPopularServices } from "$lib/api/services";
   import type { Service } from "$lib/types/api";
 
-  let searchQuery = $state("");
   let popularServices = $state<Service[]>([]);
   let loading = $state(true);
 
@@ -23,15 +23,6 @@
       loading = false;
     }
   });
-
-  function handleSearch(e: Event) {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      goto(`/services?q=${encodeURIComponent(searchQuery)}`);
-    } else {
-      goto("/services");
-    }
-  }
 </script>
 
 <svelte:head>
@@ -39,14 +30,16 @@
 </svelte:head>
 
 <!-- Hero Section -->
-<section class="relative py-24 overflow-hidden">
+<section class="relative py-24">
   <!-- Animated background circles - mais suaves -->
-  <div
-    class="absolute top-20 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl"
-  ></div>
-  <div
-    class="absolute bottom-20 right-10 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl"
-  ></div>
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div
+      class="absolute top-20 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl"
+    ></div>
+    <div
+      class="absolute bottom-20 right-10 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl"
+    ></div>
+  </div>
 
   <Motion
     initial={{ opacity: 0, y: 20 }}
@@ -55,38 +48,21 @@
     let:motion
   >
     <div use:motion class="relative max-w-4xl mx-auto text-center px-4">
-      <h1 class="text-6xl md:text-7xl font-bold mb-6">
+      <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6">
         <span class="text-white">Encontre os</span>
         <br />
-        <span class="gradient-primary text-transparent bg-clip-background"
+        <span class="gradient-primary text-transparent bg-clip-text"
           >Melhores Profissionais</span
         >
       </h1>
-      <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+      <p class="text-lg sm:text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
         Conectamos você com prestadores de serviços qualificados na sua região
         ✨
       </p>
 
-      <form onsubmit={handleSearch} class="max-w-2xl mx-auto">
-        <div
-          class="flex gap-3 bg-slate-800/40 backdrop-blur-md p-2 rounded-2xl border border-slate-700/50 hover:border-purple-500/30 transition-all"
-        >
-          <input
-            type="text"
-            bind:value={searchQuery}
-            placeholder="🔍 Buscar serviços (ex: manicure, pintor, eletricista...)"
-            class="flex-1 px-6 py-4 rounded-xl bg-transparent border-0 focus:outline-none text-white placeholder-gray-400"
-          />
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            class="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-8 shadow-lg"
-          >
-            Buscar
-          </Button>
-        </div>
-      </form>
+      <div class="max-w-2xl mx-auto relative z-20">
+        <SearchBar />
+      </div>
     </div>
   </Motion>
 </section>

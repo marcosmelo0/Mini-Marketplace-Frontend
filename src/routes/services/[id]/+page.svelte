@@ -8,7 +8,7 @@
     import Modal from "$lib/components/ui/Modal.svelte";
     import { getServiceById } from "$lib/api/services";
     import { getServiceReviews, createReview } from "$lib/api/reviews";
-    import { isAuthenticated, isClient } from "$lib/stores/auth";
+    import { isAuthenticated, isClient, currentUser } from "$lib/stores/auth";
     import { toastStore } from "$lib/stores/toast";
     import type { Service, Review } from "$lib/types/api";
 
@@ -16,7 +16,7 @@
     let reviews = $state<Review[]>([]);
     let loading = $state(true);
     let reviewModalOpen = $state(false);
-    let rating = $state(5);
+    let rating = $state(1);
     let comment = $state("");
     let submitting = $state(false);
 
@@ -53,7 +53,7 @@
             reviews = reviewsData.data;
 
             reviewModalOpen = false;
-            rating = 5;
+            rating = 1;
             comment = "";
             toastStore.success("Avaliação enviada com sucesso!");
         } catch (error: any) {
@@ -64,7 +64,10 @@
     }
 
     function handleBookService(variationId: string) {
-        goto(`/bookings/new?variationId=${variationId}`);
+        if (!service) return;
+        goto(
+            `/bookings/new?variationId=${variationId}&serviceId=${service.id}`,
+        );
     }
 
     function calculateAverageRating(): number {
@@ -102,7 +105,7 @@
         transition={{ duration: 0.5 }}
         let:motion
     >
-        <div use:motion class="max-w-6xl mx-auto">
+        <div use:motion class="max-w-6xl mx-auto px-4">
             <!-- Breadcrumb -->
             <nav class="mb-6 text-sm flex items-center space-x-2 text-gray-400">
                 <a href="/" class="hover:text-purple-400 transition-colors"
@@ -114,7 +117,7 @@
                     class="hover:text-purple-400 transition-colors">Serviços</a
                 >
                 <span>/</span>
-                <span class="text-gray-300">{service.name}</span>
+                <span class="text-gray-300 truncate">{service.name}</span>
             </nav>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -145,28 +148,32 @@
 
                     <!-- Informações do serviço -->
                     <div
-                        class="glass-dark rounded-2xl p-8 border border-purple-500/20"
+                        class="glass-dark rounded-2xl p-4 sm:p-6 md:p-8 border border-purple-500/20"
                     >
-                        <div class="flex items-start justify-between mb-6">
-                            <div>
-                                <h1 class="text-4xl font-bold text-white mb-3">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6"
+                        >
+                            <div class="flex-1 min-w-0">
+                                <h1
+                                    class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 break-words"
+                                >
                                     {service.name}
                                 </h1>
                                 <span
-                                    class="inline-block px-4 py-2 text-sm font-semibold bg-purple-500/10 text-purple-300 rounded-full border border-purple-500/20"
+                                    class="inline-block px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold bg-purple-500/10 text-purple-300 rounded-full border border-purple-500/20"
                                 >
                                     {service.category}
                                 </span>
                             </div>
 
                             {#if reviews.length > 0}
-                                <div class="text-right">
+                                <div class="sm:text-right shrink-0">
                                     <div
                                         class="flex items-center space-x-1 mb-1"
                                     >
                                         {#each Array(5) as _, i}
                                             <svg
-                                                class="w-5 h-5 {i <
+                                                class="w-4 h-4 sm:w-5 sm:h-5 {i <
                                                 Math.round(
                                                     calculateAverageRating(),
                                                 )
@@ -181,7 +188,9 @@
                                             </svg>
                                         {/each}
                                     </div>
-                                    <span class="text-sm text-gray-400">
+                                    <span
+                                        class="text-xs sm:text-sm text-gray-400"
+                                    >
                                         {calculateAverageRating().toFixed(1)} ({reviews.length}
                                         avaliações)
                                     </span>
@@ -235,7 +244,7 @@
                                 Avaliações
                             </h2>
 
-                            {#if $isAuthenticated && $isClient}
+                            {#if $isAuthenticated}
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -350,16 +359,26 @@
                                         </div>
                                     {/if}
 
-                                    {#if $isAuthenticated && $isClient}
-                                        <Button
-                                            variant="primary"
-                                            class="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                                            onclick={() =>
-                                                handleBookService(variation.id)}
-                                        >
-                                            📅 Agendar
-                                        </Button>
-                                    {:else if !$isAuthenticated}
+                                    {#if $isAuthenticated}
+                                        {#if $currentUser?.id !== service.providerId}
+                                            <Button
+                                                variant="primary"
+                                                class="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                                                onclick={() =>
+                                                    handleBookService(
+                                                        variation.id,
+                                                    )}
+                                            >
+                                                📅 Agendar
+                                            </Button>
+                                        {:else}
+                                            <div
+                                                class="w-full p-3 text-center text-sm text-gray-400 bg-slate-800/50 border border-slate-700 rounded-lg"
+                                            >
+                                                Este é o seu serviço
+                                            </div>
+                                        {/if}
+                                    {:else}
                                         <Button
                                             variant="outline"
                                             class="w-full bg-slate-800/50 border-purple-500/30 hover:border-purple-500 text-white"
@@ -378,7 +397,12 @@
     </Motion>
 
     <!-- Modal de Avaliação -->
-    <Modal bind:open={reviewModalOpen} title="Avaliar Serviço">
+    <Modal
+        bind:open={reviewModalOpen}
+        title="Avaliar Serviço"
+        maxWidth="max-w-lg"
+        maxHeight="max-h-[85vh]"
+    >
         <form
             onsubmit={(e) => {
                 e.preventDefault();
@@ -430,11 +454,11 @@
                 ></textarea>
             </div>
 
-            <div class="flex space-x-3">
+            <div class="flex flex-col sm:flex-row gap-3">
                 <Button
                     type="button"
                     variant="outline"
-                    class="flex-1 bg-slate-800/50 border-slate-700 text-white"
+                    class="w-full sm:flex-1 bg-slate-800/50 border-slate-700 text-white order-2 sm:order-1"
                     onclick={() => (reviewModalOpen = false)}
                 >
                     Cancelar
@@ -442,7 +466,7 @@
                 <Button
                     type="submit"
                     variant="primary"
-                    class="flex-1 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    class="w-full sm:flex-1 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 order-1 sm:order-2"
                     loading={submitting}
                 >
                     Enviar Avaliação
