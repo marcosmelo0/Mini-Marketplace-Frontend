@@ -27,14 +27,37 @@
 
         selectedCategory = category;
         searchQuery = q || "";
+        currentPage = 1;
+    });
+
+    $effect(() => {
+        const _ = selectedCategory;
+        const __ = searchQuery;
+        const ___ = selectedSort;
+        const ____ = currentPage;
 
         loadServices();
     });
+
+    function getSortParams(): { sort?: string; order?: "asc" | "desc" } {
+        switch (selectedSort) {
+            case "price_asc":
+                return { sort: "price", order: "asc" };
+            case "price_desc":
+                return { sort: "price", order: "desc" };
+            case "rating_desc":
+                return { sort: "rating", order: "desc" };
+            case "newest":
+            default:
+                return { sort: "createdAt", order: "desc" };
+        }
+    }
 
     async function loadServices() {
         loading = true;
         try {
             let response;
+            const sortParams = getSortParams();
 
             if (searchQuery) {
                 response = await searchServices(searchQuery, currentPage);
@@ -43,6 +66,7 @@
                     page: currentPage,
                     limit: 12,
                     category: selectedCategory || undefined,
+                    ...sortParams,
                 });
             }
 

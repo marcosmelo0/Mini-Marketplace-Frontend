@@ -187,6 +187,18 @@
 
     function isDateUnavailable(date: DateValue): boolean {
         const jsDate = date.toDate(getLocalTimeZone());
+
+        // Bloquear datas anteriores a hoje
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selectedDate = new Date(jsDate);
+        selectedDate.setHours(0, 0, 0, 0);
+
+        if (selectedDate < today) {
+            return true;
+        }
+
+        // Bloquear dias da semana indisponíveis
         const weekday = jsDate.getDay();
         return unavailableWeekdays.includes(weekday);
     }

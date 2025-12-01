@@ -6,6 +6,8 @@
   import RouteGuard from "$lib/components/RouteGuard.svelte";
   import { authStore } from "$lib/stores/auth";
 
+  let { children } = $props();
+
   onMount(() => {
     authStore.loadUser();
   });
@@ -18,9 +20,7 @@
   <Navigation />
 
   <main class="relative z-10 grow pt-8 pb-16 px-4 sm:px-6 lg:px-8">
-    <RouteGuard>
-      <slot />
-    </RouteGuard>
+    <RouteGuard {children}></RouteGuard>
   </main>
 
   <footer
