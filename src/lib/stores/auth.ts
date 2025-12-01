@@ -23,18 +23,12 @@ function createAuthStore() {
         loadUser: async () => {
             if (!browser) return;
 
-            const token = localStorage.getItem('token');
-            if (!token) {
-                update((state) => ({ ...state, isInitialized: true }));
-                return;
-            }
-
+            // Tenta carregar o usuário - se houver cookie válido, funcionará
             try {
                 const user = await authApi.getProfile();
                 update((state) => ({ ...state, user, isInitialized: true }));
             } catch (error) {
-                // Token inválido, limpar
-                localStorage.removeItem('token');
+                // Sem cookie válido ou expirado
                 update((state) => ({ ...state, user: null, isInitialized: true }));
             }
         },

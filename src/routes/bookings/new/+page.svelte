@@ -250,21 +250,11 @@
 
         submitting = true;
         try {
-            const utcDate = new Date(selectedSlot.start_time);
-            const brazilDate = new Date(utcDate.getTime() - 3 * 60 * 60 * 1000);
-
-            const year = brazilDate.getFullYear();
-            const month = String(brazilDate.getMonth() + 1).padStart(2, "0");
-            const day = String(brazilDate.getDate()).padStart(2, "0");
-            const hours = String(brazilDate.getHours()).padStart(2, "0");
-            const minutes = String(brazilDate.getMinutes()).padStart(2, "0");
-            const seconds = String(brazilDate.getSeconds()).padStart(2, "0");
-
-            const brazilStartTime = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}-03:00`;
-
+            // O slot.start_time já vem no formato correto do backend
+            // Apenas precisamos enviá-lo de volta
             await createBooking({
                 serviceVariationId: variation.id,
-                start_time: brazilStartTime,
+                start_time: selectedSlot.start_time,
             });
 
             toastStore.success("Agendamento realizado com sucesso!");
