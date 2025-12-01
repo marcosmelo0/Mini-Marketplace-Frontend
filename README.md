@@ -4,6 +4,10 @@
 
 ---
 
+Vídeo DEMO: https://youtu.be/HW6Kce8lf9g
+
+---
+
 ## 🚀 Tecnologias
 
 - **Framework**: [SvelteKit](https://kit.svelte.dev/) 2.48.5
