@@ -31,10 +31,7 @@
 ## 🔧 Instalação
 
 ```bash
-# Clone o repositório
-git clone <repository-url>
-
-# Entre na pasta do projeto
+git clone https://github.com/marcosmelo0/Mini-Marketplace-Frontend.git
 cd mini-marketplace-frontend
 
 # Instale as dependências
